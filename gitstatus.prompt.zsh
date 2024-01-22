@@ -31,6 +31,7 @@ function example_callback() {
     cleanOrDirty="%{$fg_bold[green]%}✔"
   fi
 
+  git_action=$([[ -n $VCS_STATUS_ACTION ]] && echo " ${FG[250]}| %{$fg_bold[red]%}$VCS_STATUS_ACTION" || echo "")
 
   local where  # branch name, tag or commit
   if [[ -n $VCS_STATUS_LOCAL_BRANCH ]]; then
@@ -43,7 +44,7 @@ function example_callback() {
     where=${VCS_STATUS_COMMIT[1,8]}
   fi
 
-  p+="$(worktree_char)$fg[blue](${where//\%/%%} $cleanOrDirty$fg[blue])"             # escape %
+  p+="$(worktree_char)$fg[blue](${where//\%/%%} $cleanOrDirty$fg[blue]${git_action}$fg[blue])"             # escape %
   # ⇣42 if behind the remote.
   (( VCS_STATUS_COMMITS_BEHIND )) && p+=" ${FG[250]}↓"
   # ⇡42 if ahead of the remote; no leading space if also behind the remote: ⇣42⇡42.
@@ -56,8 +57,7 @@ function example_callback() {
   (( VCS_STATUS_PUSH_COMMITS_AHEAD  )) && p+="${FG[250]}⇢"
   # *42 if have stashes.
   (( VCS_STATUS_STASHES        )) && p+=" ${FG[220]}✷"
-  # 'merge' if the repo is in an unusual state.
-  [[ -n $VCS_STATUS_ACTION     ]] && p+=" %{$fg_bold[red]%}$VCS_STATUS_ACTION"
+  
   # ~42 if have merge conflicts.
   (( VCS_STATUS_NUM_CONFLICTED )) && p+=" ${FG[220]}⥂"
   # +42 if have staged changes.
